@@ -1,0 +1,68 @@
+#!/usr/bin/env python
+
+import matplotlib.pyplot as plt
+import foale.mnsa
+import numpy as np
+
+# Initialize the convenience object; below are the plate IFUs of the 6 galaxies we are interested in from Belfiore 2016
+#10001-12701, 7975-9101, 7977-12704, 8439-12702, 7975-3704, 7443-12703, 8143-6101
+
+p_IFU = '7977-12704'
+m = foale.mnsa.MNSA(plateifu = '7977-12704')
+
+# Read in the cube's FITS file
+m.read_cube()
+wave = m.cube['WAVE'].read()
+flux = m.cube['FLUX'].read()
+
+# Show one of the spectra in a pixel
+spaxel_flux = flux[:, 24, 24]
+plt.plot(wave, spaxel_flux)
+plt.xlabel('Wavelength (Angstrom)')
+plt.ylabel('Flux ($10^{-17}$ erg/cm$^2$/s/A)')
+plt.title(p_IFU)
+plt.show()
+
+# Read in the maps FITS file
+m.read_maps()
+
+# Read in the emission line measurements (Gaussian fit)
+# This is a big 3D array, with one 2D image per line.
+gflux = m.maps['EMLINE_GFLUX'].read()
+
+# We have to pick out the right line. The MNSA object
+# builds a little dictionary to help.
+
+halpha_indx = m.lineindx['Ha-6564']
+hbeta_indx = m.lineindx['Hb-4862']
+SII_indx = m.lineindx['SII-6718']
+OIII_indx = m.lineindx['OIII-5008']
+
+halpha = gflux[halpha_indx, :, :]
+#plt.imshow(halpha, origin='lower', cmap='Greys')
+#plt.title('H-Alpha')
+#plt.show()
+
+hbeta = gflux[halpha_indx, :, :]
+#plt.imshow(hbeta, origin='lower', cmap='Greys')
+#plt.title('H-Beta')
+#plt.show()
+
+SII = gflux[SII_indx, :, :]
+#plt.imshow(SII, origin='lower', cmap='Greys')
+#plt.title('SII')
+#plt.show()
+
+OIII = gflux[OIII_indx, :, :]
+#plt.imshow(OIII, origin='lower', cmap='Greys')
+#plt.title('OIII')
+#plt.show()
+
+print('SII =', SII)
+print('HAlpha =', halpha)
+
+#BPT diagram
+x = np.log(SII/halpha)
+y = np.log(OIII/hbeta)
+
+#print(m.lineindx.keys())
