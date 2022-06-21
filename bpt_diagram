@@ -90,18 +90,42 @@ plt.show()
 #if above is correct, then these are the masked arrays for all other emission lines of interest:
 hbeta_mask = np.ma.array(hbeta, mask = gfluxmask[hbeta_indx,:,:])
 SII_mask = np.ma.array(SII, mask = gfluxmask[SII_indx,:,:])
-OIII_mask = np.ma.array(OIII, mask = gfluxmask[OIII_indx,:,:])
+OIII_mask = np.ma.array(OIII, mask fluxmask[OIII_indx,:,:])
 
-#don't want divide by zero errors when we calculate line ratios; pick out good values that don't = 0: 
-good_halpha = (halpha_mask != 0)
-good_SII = (SII_mask != 0)
+#don't want divide by zero errors when we calculate line ratios; make a mask to pick out good values that don't equal 0: 
+m = (halpha_mask != 0) | (hbeta_mask != 0 ) | (SII_mask != 0) | (OIII_mask != 0) | (halpha <= 0) | (hbeta <= 0) | (SII <= 0 ) | (OIII <= 0)
+
+#apply mask to h-alpha line emission flux measurement array
+halpha_test = np.ma.array(halpha, mask = m)
+
+plt.imshow(halpha_test, origin = 'lower', cmap = 'inferno')
+plt.title('Masked H-Alpha > 0')
+plt.colorbar()
+plt.show()
+
+#if above is correct then these are the correctly masked line emission flux measurements that are > 0:
+hbeta_test = np.ma.array(hbeta, mask = m)
+plt.imshow(hbeta_test, origin = 'lower', cmap = 'inferno')
+plt.title('Masked H-Beta > 0')
+plt.colorbar()
+plt.show()
+SII_test = np.ma.array(SII, mask = m)
+plt.imshow(SII_test, origin = 'lower', cmap = 'inferno')
+plt.title('Masked SII > 0')
+plt.colorbar()
+plt.show()
+OIII_test = np.ma.array(OIII, mask = m)
+plt.imshow(OIII_test, origin = 'lower', cmap = 'inferno')
+plt.title('Masked OIII > 0')
+plt.colorbar()
+plt.show()
 
 #BPT Diagram
-empty = []
+#empty = []
 #line_ratio1 = np.asarray(empty)
 #line_ratio2 = np.asarray(empty)
 
-#line_ratio1 = np.log(SII[good_SII]/halpha[good_halpha])
+#line_ratio1[good_halpha] = np.log(SII_mask[good_halpha]/
 #line_ratio2[good] = np.log(OIII[good]/hbeta[good])
 
 #plt.plot(line_ratio1, line_ratio2)
